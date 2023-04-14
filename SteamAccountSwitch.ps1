@@ -12,9 +12,8 @@ $ACCOUNT_NAMES = # Index starts from 0
   "account4"    # Index 4
 
 # 2. (Optional)
-# Add a prompt to each account
-# if you like.
-## For example, streammer don't want to leak hi account name,
+# Add a prompt to each account if you like.
+## For example, streammer don't want to leak his/her account name,
 ## or you have too many accounts to recognize each of them.
 # Leave it blank if you don't want to.
 # The prompt will replace the account name in the dialog.
