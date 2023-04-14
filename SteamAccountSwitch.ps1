@@ -37,6 +37,25 @@ $ACCOUNT_PROMPTS[4] = "My girlfriend's (if you have one)"  # Prompt of account4
 $motd = "Steam Account Switch"
 $prompt = "Select the login account:"
 
+$host.ui.RawUI.WindowTitle = $title
+
+# Switch Account
+function switch_account ([string]$account_name){
+  Get-Process | Where-Object -FilterScript {$_.ProcessName -eq "steam"} | Stop-Process
+
+  reg add "HKCU\Software\Valve\Steam" /v AutoLoginUser /t REG_SZ /d "$account_name" /f
+  reg add "HKCU\Software\Valve\Steam" /v RememberPassword /t REG_DWORD /d 1 /f
+
+  start steam://open/main
+}
+
+# Main with arguments
+if ($args[0]) {
+  $account_name = $args[0]
+  switch_account $account_name
+  exit
+}
+
 # Draw Dialog
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -73,23 +92,13 @@ foreach($a in 1..$ACCOUNT_NAMES.Length) {
   }
   [void] $main_listBox.Items.Add($item)
 }
+$main_listBox.SetSelected(0, $true)
 $mainForm.Controls.Add($main_listBox)
 
-# Main
+# Main Window
 $mainForm.Topmost = $true
 $result = $mainForm.ShowDialog()
-
-# Error process
-if ($result -ne [System.Windows.Forms.DialogResult]::OK) {
-  exit 1
+if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+  $account_name = $ACCOUNT_NAMES[$main_listBox.SelectedIndices]
+  switch_account $account_name
 }
-
-# Switch account
-Get-Process | Where-Object -FilterScript {$_.ProcessName -eq "steam"} | Stop-Process
-
-$account_name = $ACCOUNT_NAMES[$main_listBox.SelectedIndices]
-
-reg add "HKCU\Software\Valve\Steam" /v AutoLoginUser /t REG_SZ /d $account_name /f
-reg add "HKCU\Software\Valve\Steam" /v RememberPassword /t REG_DWORD /d 1 /f
-
-start steam://open/main
